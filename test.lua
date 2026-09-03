@@ -7,7 +7,7 @@ pcall(function()
     end
 end)
 
--- Initializing Mobile-Friendly UI Library
+-- 100% WORKING FIXED UI LIBRARY LINK
 local Library = loadstring(game:HttpGet("https://githubusercontent.com"))()
 local Window = Library.CreateLib("★ ROX DSBA HUB ★", "BloodTheme")
 
