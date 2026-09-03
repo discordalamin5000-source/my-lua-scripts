@@ -1,68 +1,113 @@
--- [[ ROX DSBA PREMIUM MOBILE HUB ]]
--- Anti-Cheat Bypass and Executor Performance Optimization
-if not game:IsLoaded() then game.Loaded:Wait() end
-pcall(function()
-    if game.Players.LocalPlayer.Character then
-        game.Players.LocalPlayer.Character:WaitForChild("Humanoid")
-    end
-end)
+-- [[ ROX DSBA NATIVE PREMIUM MOBILE HUB ]]
+-- 100% Independent Script - No External UI Libraries Required (Anti-Block)
 
--- 100% WORKING FIXED UI LIBRARY LINK
-local Library = loadstring(game:HttpGet("https://githubusercontent.com"))()
-local Window = Library.CreateLib("★ ROX DSBA HUB ★", "BloodTheme")
+repeat task.wait() until game:IsLoaded()
 
--- ==================== TAB 1: MOVEMENT ====================
-local PlayerTab = Window:NewTab("Player Exploits")
-local PlayerSec = PlayerTab:NewSection("Speed Modifier")
+local player = game.Players.LocalPlayer
+local TweenService = game:GetService("TweenService")
 
-PlayerSec:NewButton("Set WalkSpeed (150+)", "Instantly updates speed parameters safely", function()
-    pcall(function() 
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 150 
-    end)
-end)
+-- 1. Create Native Core Graphical User Interface
+local ScreenGui = Instance.new("ScreenGui")
+local MainFrame = Instance.new("Frame")
+local TitleLabel = Instance.new("TextLabel")
+local ButtonLayout = Instance.new("UIListLayout")
 
-PlayerSec:NewSlider("Custom Speed Control", "Fine-tune speed to prevent game desync", 250, 16, function(s)
-    pcall(function() 
-        game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = s 
-    end)
-end)
+ScreenGui.Name = "RoxDsbaHubGui"
+ScreenGui.Parent = game.CoreGui
+ScreenGui.ResetOnSpawn = false
 
--- ==================== TAB 2: ITEM FINDER ====================
-local ItemTab = Window:NewTab("Item Teleport")
-local ItemSec = ItemTab:NewSection("Map Spawns Tracker")
+-- Main Premium Box Design (Nocturnal Dark Matte Style)
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+MainFrame.BorderSizePixel = 2
+MainFrame.BorderColor3 = Color3.fromRGB(163, 0, 0) -- Crimson Red Border
+MainFrame.Position = UDim2.new(0.3, 0, 0.2, 0)
+MainFrame.Size = UDim2.new(0, 280, 0, 360)
+MainFrame.Active = true
+MainFrame.Draggable = true -- Allows moving the menu on mobile screen
 
--- Precision Raycast/CFrame Teleport Function
-local function fetchAndTeleport(targetName)
-    local player = game.Players.LocalPlayer
-    local rootPart = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+-- Title Bar
+TitleLabel.Name = "TitleLabel"
+TitleLabel.Parent = MainFrame
+TitleLabel.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
+TitleLabel.Size = UDim2.new(1, 0, 0, 40)
+TitleLabel.Font = Enum.Font.SourceSansBold
+TitleLabel.Text = "★ ROX DSBA HUB v3 ★"
+TitleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+TitleLabel.TextSize = 20
+
+-- Layout Container for Buttons
+ButtonLayout.Parent = MainFrame
+ButtonLayout.SortOrder = Enum.SortOrder.LayoutOrder
+ButtonLayout.Padding = UDim.new(0, 8)
+
+-- Helper Function to Create Sleek Interactive Buttons
+local function createMenuButton(text, layoutOrder, callback)
+    local btn = Instance.new("TextButton")
+    btn.Parent = MainFrame
+    btn.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+    btn.Size = UDim2.new(0, 260, 0, 45)
+    btn.Position = UDim2.new(0, 10, 0, 0) -- Adjusted via Layout
+    btn.Font = Enum.Font.SourceSans
+    btn.Text = text
+    btn.TextColor3 = Color3.fromRGB(240, 240, 240)
+    btn.TextSize = 16
+    btn.BorderSizePixel = 0
+    btn.LayoutOrder = layoutOrder
     
-    if rootPart then
-        for _, object in pairs(workspace:GetDescendants()) do
-            if object.Name:lower() == targetName:lower() or (object:IsA("Tool") and object.Name:lower():find(targetName:lower())) then
-                local targetPart = object:IsA("BasePart") and object or object:FindFirstChildWhichIsA("BasePart")
-                if targetPart then
-                    -- Smooth vector offset to prevent ground clipping
-                    rootPart.CFrame = targetPart.CFrame + Vector3.new(0, 3, 0)
-                    return true
+    -- Mobile Click Event
+    btn.MouseButton1Click:Connect(callback)
+    
+    -- Round Corners Style
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = btn
+end
+
+-- Teleport Logic Function (Tween Mode)
+local function safeTween(itemName)
+    local character = player.Character
+    local root = character and character:FindFirstChild("HumanoidRootPart")
+    if root then
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj.Name:lower() == itemName:lower() or (obj:IsA("Tool") and obj.Name:lower():find(itemName:lower())) then
+                local target = obj:IsA("BasePart") and obj or obj:FindFirstChildWhichIsA("BasePart")
+                if target then
+                    local dist = (target.Position - root.Position).Magnitude
+                    local tweenInfo = TweenInfo.new(dist / 160, Enum.EasingStyle.Linear)
+                    local tween = TweenService:Create(root, tweenInfo, {CFrame = target.CFrame + Vector3.new(0, 3, 0)})
+                    tween:Play()
+                    return
                 end
             end
         end
     end
-    return false
 end
 
-ItemSec:NewButton("Teleport to Earrings", "Locates and teleports to Earrings", function()
-    fetchAndTeleport("Earrings")
+-- 2. Inject Buttons into the Interface
+createMenuButton("Speed Hack: 150+", 1, function()
+    pcall(function() player.Character.Humanoid.WalkSpeed = 150 end)
 end)
 
-ItemSec:NewButton("Teleport to Flute", "Locates and teleports to Flute", function()
-    fetchAndTeleport("Flute")
+createMenuButton("Tween → Flute", 2, function()
+    safeTween("Flute")
 end)
 
-ItemSec:NewButton("Teleport to Ice Shards", "Locates and teleports to Ice Shards", function()
-    fetchAndTeleport("Ice Shards")
+createMenuButton("Tween → Earrings", 3, function()
+    safeTween("Earrings")
 end)
 
-ItemSec:NewButton("Teleport to Cube", "Locates and teleports to Cube", function()
-    fetchAndTeleport("Cube")
+createMenuButton("Tween → Ice Shards", 4, function()
+    safeTween("Ice Shards")
+end)
+
+createMenuButton("Tween → Cube", 5, function()
+    safeTween("Cube")
+end)
+
+-- Minimize Button Feature
+createMenuButton("Hide Menu", 6, function()
+    MainFrame.Visible = false
+    -- Floating restore icon logic could be added here
 end)
