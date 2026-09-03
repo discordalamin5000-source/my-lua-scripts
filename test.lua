@@ -8,6 +8,8 @@ if level >= 10 then
     print("Level OK")
 end
 
-function hello()
-    print("Hello Noor!")
+function hello(name)
+    print("Hello " .. name)
 end
+
+hello("Noor")
