@@ -7,3 +7,7 @@ print(level)
 if level >= 10 then
     print("Level OK")
 end
+
+function hello()
+    print("Hello Noor!")
+end
