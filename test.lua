@@ -1,17 +1,1 @@
-name = "Noor"
-level = 10
 
-print(name)
-print(level)
-
-if level >= 10 then
-    print("Level OK")
-end
-
-function hello(name)
-    print("Hello " .. name)
-end
-
-Hello Noor
-Hello Rahim
-Hello Karim
