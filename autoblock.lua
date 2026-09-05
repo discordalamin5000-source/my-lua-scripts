@@ -1,51 +1,78 @@
--- SERVER-SIDE BYPASS AUTO BLOCK (100% WORKING)
--- Optimized for Delta Executor & DS: Burning Ashes
+-- Rayfield UI Library Loader
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu'))()
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local LocalPlayer = Players.LocalPlayer
-
--- স্ক্রিন সাকসেস মেসেজ
-game:GetService("StarterGui"):SetCore("SendNotification", {
-    Title = "Lennon Hub",
-    Text = "Bypass Auto Block: ACTIVE",
-    Duration = 5
+-- মেইন উইন্ডো তৈরি (by Yamu ক্রেডিট যুক্ত)
+local Window = Rayfield:CreateWindow({
+   Name = "🔥 Lennon Hub | Demon Slayer",
+   LoadingTitle = "Lennon Hub Loading...",
+   LoadingSubtitle = "by Yamu",
+   ConfigurationSaving = { Enabled = false }
 })
 
-local function getCharacter()
-    return LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-end
+-- কাস্টম ট্যাব তৈরি
+local Tab = Window:CreateTab("🛡️ Combat", 4483362458) -- Combat Tab Icon
 
--- অনবরত ব্লক বাটন ভার্চুয়ালি প্রেস করে রাখার লুপ
+-- গ্লোবাল ভ্যারিয়েবল (অন/অফ ট্র্যাক করার জন্য)
+_G.AutoBlock = false
+
+-- UI-তে টগল বাটন তৈরি
+Tab:CreateToggle({
+   Name = "Auto Block M2 & Breathing",
+   CurrentValue = false,
+   Flag = "AutoBlockToggle",
+   Callback = function(Value)
+      _G.AutoBlock = Value
+      if Value then
+          Rayfield:Notify({
+             Title = "Auto Block",
+             Content = "Activated successfully by Yamu!",
+             Duration = 3,
+             Image = 4483362458,
+          })
+      end
+   end,
+})
+
+-- ব্যাকগ্রাউন্ড অটো-ব্লক লুপ (যখন টগল অন থাকবে তখনই কাজ করবে)
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local LocalPlayer = Players.LocalPlayer
+
 RunService.Heartbeat:Connect(function()
-    pcall(function()
-        local character = getCharacter()
-        local humanoid = character:FindFirstChildOfClass("Humanoid")
-        
-        if humanoid and humanoid.Health > 0 then
-            -- ১. সার্ভারকে বোকা বানাতে ভার্চুয়াল কী-প্রেস পাঠানো (F Key / Guard Input)
-            -- এটি সরাসরি গেমের মেইন ইঞ্জিনকে ব্লকিং ইনপুট পাঠায়
-            VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
+    if _G.AutoBlock then
+        pcall(function()
+            local myChar = LocalPlayer.Character
+            local myHum = myChar and myChar:FindFirstChildOfClass("Humanoid")
             
-            -- ২. গেমের ইন্টারনাল ভ্যালু ব্যাকআপ ব্যাকগ্রাউন্ড ফোর্স
-            local blockingVal = character:FindFirstChild("Blocking") or character:FindFirstChild("IsBlocking") or character:FindFirstChild("Block")
-            if blockingVal then
-                blockingVal.Value = true
+            if myHum and myHum.Health > 0 then
+                -- কোর গেম স্টেট ও মেটাস্টেট হ্যাক
+                local blockNames = {"Blocking", "IsBlocking", "BlockState", "Guard", "IsGuarding"}
+                for _, name in pairs(blockNames) do
+                    local blockVal = myChar:FindFirstChild(name) or (myChar:FindFirstChild("CombatValues") and myChar.CombatValues:FindFirstChild(name))
+                    if blockVal then
+                        if blockVal:IsA("BoolValue") then
+                            blockVal.Value = true
+                        end
+                    end
+                end
+                
+                -- প্রক্সিমিটি ডিস্টেন্স চেক (কাছাকাছি এনিমি থাকলে রিমোট ফায়ার)
+                for _, enemy in pairs(Players:GetPlayers()) do
+                    if enemy ~= LocalPlayer then
+                        local enemyChar = enemy.Character
+                        if enemyChar and enemyChar:FindFirstChild("HumanoidRootPart") and myChar:FindFirstChild("HumanoidRootPart") then
+                            local distance = (myChar.HumanoidRootPart.Position - enemyChar.HumanoidRootPart.Position).Magnitude
+                            if distance <= 12 then
+                                for _, v in pairs(game:GetDescendants()) do
+                                    if v:IsA("RemoteEvent") and (v.Name:lower():find("block") or v.Name:lower():find("guard")) then
+                                        v:FireServer(true)
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
             end
-            
-            -- ৩. অ্যান্টি-স্টান ভ্যালু ক্লিয়ারেন্স (Breathing Attack এর ধাক্কা সামলাতে)
-            local stunVal = character:FindFirstChild("Stun") or character:FindFirstChild("Stunned")
-            if stunVal then
-                stunVal.Value = false
-            end
-        end
-    end)
-    task.wait(0.01) -- গেম ক্র্যাশ বা কিক এড়ানোর সেফ ডিলে
-end)
-
--- ক্যারেক্টার মারা গিয়ে আবার রি-স্পন হলে কোড রিসেট করা
-LocalPlayer.CharacterAdded:Connect(function()
-    task.wait(1)
-    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.F, false, game)
+        end)
+    end
 end)
